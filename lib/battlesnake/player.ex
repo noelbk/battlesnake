@@ -45,7 +45,7 @@ defmodule Battlesnake.Player do
 	end
 	
 	def via_tuple(name) do
-		{:global, {__MODULE__, name}}
+		{:via, :gproc, {:n, :l, {__MODULE__, name}}}
 	end
 
   def handle_call(:status, _from, state) do

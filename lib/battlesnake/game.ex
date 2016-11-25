@@ -37,8 +37,12 @@ defmodule Battlesnake.Game do
 		]
 	end
 
+	def start(name, players, opts \\ []) do
+		Battlesnake.Game.Supervisor.start_game(name, players, opts)
+	end
+	
 	@doc """
-  handle one snake
+  handle one game
   """
 	def start_link(name, opts \\ []) do
 		GenServer.start_link(__MODULE__, %State{name: name, opts: opts}, name: via_tuple(name))
@@ -55,7 +59,7 @@ defmodule Battlesnake.Game do
 	## Private 
 	
 	def via_tuple(name) do
-		{:global, {__MODULE__, name}}
+		{:via, :gproc, {:n, :l, {__MODULE__, name}}}
 	end
 
   def handle_call(:status, _from, state) do

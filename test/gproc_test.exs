@@ -1,9 +1,8 @@
 defmodule Test.PubSub do
-	def reg() do
-		case :gproc.reg(reg_tuple) do
-			true -> :ok
-			ret -> ret
-		end
+	def reg(name) do
+		:true = :gproc.reg(reg_tuple)
+		:true = :gproc.add_local_property(name_property, name)
+		:ok
 	end
 	
 	def pub(msg) do
@@ -13,13 +12,17 @@ defmodule Test.PubSub do
 	def reg_tuple() do
 		{:p, :l, {__MODULE__, :my_event}}
 	end
+
+	def name_property() do
+		{__MODULE__, :name}
+	end
 end
 
 defmodule Test.PubSubEcho do
 	use GenServer
 
-	def init(_opts) do
-		:ok = Test.PubSub.reg
+	def init(name) do
+		:ok = Test.PubSub.reg(name)
 		{:ok, []}
 	end
 
@@ -69,10 +72,13 @@ defmodule Gproc.PubSub.Test do
 
 		{:error, :timeout, _msg} = check([:msg12], [:nopid])
 
-		{:ok, pid1} = GenServer.start_link(Test.PubSubEcho, [], [])
-		{:ok, pid2} = GenServer.start_link(Test.PubSubEcho, [], [])
+		{:ok, pid1} = GenServer.start_link(Test.PubSubEcho, :pid1)
+		{:ok, pid2} = GenServer.start_link(Test.PubSubEcho, :pid2)
 
-		assert MapSet.new([pid2, pid1]) == MapSet.new(:gproc.lookup_pids(Test.PubSub.reg_tuple))
+		assert MapSet.new([pid1, pid2]) == MapSet.new(:gproc.lookup_pids(Test.PubSub.reg_tuple))
+
+		assert MapSet.new([{pid1, :pid1}, {pid2, :pid2}]) ==
+			MapSet.new(:gproc.lookup_local_properties(Test.PubSub.name_property))
 		
 		:ok = check([:msg21, :msg22], [pid1, pid2])
 		{:error, :unexpected, _msg} = check([:msg23, :msg24], [pid1])
