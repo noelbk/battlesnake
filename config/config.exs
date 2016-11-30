@@ -18,8 +18,11 @@ use Mix.Config
 #
 # Or configure a 3rd-party app:
 #
-#     config :logger, level: :info
-#
+config :logger,
+backends: [:console],
+level: :warn,
+handle_sasl_reports: true,
+handle_otp_reports: true
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
