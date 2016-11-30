@@ -37,10 +37,6 @@ defmodule Battlesnake.Game do
 		]
 	end
 
-	def start(name, players, opts \\ []) do
-		Battlesnake.Game.Supervisor.start_game(name, players, opts)
-	end
-	
 	@doc """
   handle one game
   """

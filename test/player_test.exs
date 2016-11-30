@@ -3,9 +3,15 @@ defmodule Battlesnake.Player.Test do
 	doctest Battlesnake.Player
 
 	test "player" do
-		name = "player1"
-		_via_tuple = Battlesnake.Player.via_tuple(name)
-		{:ok, _pid} = Battlesnake.Player.start_link("player1")
-		{:ok, _player} = Battlesnake.Player.status("player1")
+		{:ok, player_sup_pid} = Battlesnake.Player.start_sup
+		{:error, {:already_started, ^player_sup_pid}} = Battlesnake.Player.start_sup
+		
+		player1_name = "player1"
+		{:ok, player1_pid} = Battlesnake.Player.start(player1_name)
+		{:error, {:already_started, ^player1_pid}} = Battlesnake.Player.start(player1_name)
+		
+		{:ok, %{name: ^player1_name, state: :started}} = Battlesnake.Player.status(player1_name)
+
+		[{^player1_pid, %{name: ^player1_name, state: :started}}] = Battlesnake.Player.list
 	end
 end	
